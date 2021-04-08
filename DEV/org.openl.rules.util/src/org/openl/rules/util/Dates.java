@@ -32,8 +32,12 @@ public final class Dates {
      * @see SimpleDateFormat
      */
     public static Date Date(int year, int month, int day) {
+        return Date(year, month, day, 0, 0, 0);
+    }
+
+    public static Date Date(int year, int month, int day, int hourOfDay, int minute, int second) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, day, 0, 0, 0);
+        calendar.set(year, month - 1, day, hourOfDay, minute, second);
         calendar.set(Calendar.MILLISECOND, 0);
         calendar.setLenient(false); // Strict matching
         try {
@@ -43,7 +47,6 @@ public final class Dates {
             return null;
         }
     }
-
     /**
      * Converts a date to a string using a default pattern. The default pattern is system and setting dependent.
      */
