@@ -37,7 +37,9 @@ public class RepositoryEditor {
 
     static PropertiesHolder createPropertiesWrapper(PropertiesHolder properties, String repoListConfig) {
         String repoConfigName = getFirstConfigName(properties.getProperty(repoListConfig));
-
+        if (repoConfigName == null) {
+            return properties;
+        }
         return (PropertiesHolder) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
             new Class[] { PropertiesHolder.class },
             createDefaultValueInvocationHandler(properties, repoConfigName));
@@ -45,7 +47,9 @@ public class RepositoryEditor {
 
     public static PropertyResolver createPropertiesWrapper(PropertyResolver properties, String repoListConfig) {
         String repoConfigName = getFirstConfigName(properties.getProperty(repoListConfig));
-
+        if (repoConfigName == null) {
+            return properties;
+        }
         return (PropertyResolver) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
             new Class[] { PropertyResolver.class },
             createDefaultValueInvocationHandler(properties, repoConfigName));
@@ -85,6 +89,9 @@ public class RepositoryEditor {
             if (StringUtils.isNotEmpty(existingConfigNames)) {
                 configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
             }
+            if (value == null) {
+                return "";
+            }
             configNames.forEach(rc -> configurations.forEach(configuration -> {
                 String repoValue = configuration.getPropertiesToValidate()
                     .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
@@ -104,7 +111,7 @@ public class RepositoryEditor {
 
     private static String getFirstConfigName(String configNames) {
         if (configNames == null || configNames.isEmpty()) {
-            throw new IllegalArgumentException("Config names were not found");
+            return null;
         }
         return StringUtils.split(configNames, ',')[0];
     }
@@ -146,10 +153,12 @@ public class RepositoryEditor {
         repositoryConfigurations.clear();
 
         String[] repositoryConfigNames = split(properties.getProperty(repoListConfig));
-        for (String configName : repositoryConfigNames) {
-            if (isValidConfig(configName)) {
-                RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
-                repositoryConfigurations.add(config);
+        if (repositoryConfigNames != null) {
+            for (String configName : repositoryConfigNames) {
+                if (deletedConfigurations.stream().noneMatch(c->c.getConfigName().equals(configName)) && isValidConfig(configName)) {
+                    RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
+                    repositoryConfigurations.add(config);
+                }
             }
         }
     }

@@ -76,6 +76,10 @@ public class ProductionRepositoriesTreeController {
         }
     }
 
+    public boolean productionRepositoryExists() {
+       return !productionRepositoriesTreeState.getDeploymentManager().getRepositoryConfigNames().isEmpty();
+    }
+
     public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {
         return repositorySelectNodeStateHolder;
     }

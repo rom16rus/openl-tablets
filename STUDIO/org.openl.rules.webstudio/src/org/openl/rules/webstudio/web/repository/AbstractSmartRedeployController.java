@@ -97,7 +97,10 @@ public abstract class AbstractSmartRedeployController {
         return items;
     }
 
-    public synchronized boolean isProjectHasSelectedItems() {
+    public synchronized boolean isDeployAllowed() {
+        if (StringUtils.isEmpty(repositoryConfigName)) {
+            return false;
+        }
         List<DeploymentProjectItem> itemList = getItems();
         if (itemList == null) {
             return false;
@@ -113,6 +116,9 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
+        if (StringUtils.isEmpty(repositoryConfigName)) {
+            return null;
+        }
         Repository deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         boolean folderStructure;
 

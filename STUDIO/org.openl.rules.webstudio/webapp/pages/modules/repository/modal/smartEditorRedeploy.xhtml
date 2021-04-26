@@ -73,7 +73,7 @@
 
             <footer>
                 <a4j:commandButton id="smartRedeployBtn" value="Deploy"
-                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems}"
+                                   disabled="#{!smartRedeployEditorController.deployAllowed}"
                                    onclick="return startSmartRedeploy();"
                                    action="#{smartRedeployEditorController.redeploy}"
                                    render="@form"
