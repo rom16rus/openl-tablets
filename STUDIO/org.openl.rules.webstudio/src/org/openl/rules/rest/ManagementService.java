@@ -19,7 +19,7 @@ import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
-import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.security.standalone.persistence.OpenLGroup;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
@@ -51,7 +51,7 @@ public class ManagementService {
     @Path("/groups")
     public Map<String, UIGroup> getGroups() {
         SecurityChecker.allow(Privileges.ADMIN);
-        return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
+        return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(OpenLGroup::getName, UIGroup::new));
     }
 
     @DELETE
@@ -75,7 +75,8 @@ public class ManagementService {
             throw new ConflictException("duplicated.group.message");
         }
         if (StringUtils.isBlank(oldName)) {
-            groupManagementService.addGroup(name, description);
+            // TODO instead of privileges
+            groupManagementService.addGroup(name, description, false);
         } else {
             groupManagementService.updateGroup(oldName, name, description);
         }
@@ -91,18 +92,16 @@ public class ManagementService {
     }
 
     public static class UIGroup {
-        private UIGroup(Group group) {
-            description = group.getDescription();
-            privileges = group.getPrivileges();
-            roles = group.getIncludedGroups()
+        private UIGroup(OpenLGroup openLGroup) {
+            description = openLGroup.getDescription();
+            roles = openLGroup.getIncludedGroups()
                 .stream()
-                .map(org.openl.rules.security.standalone.persistence.Group::getName)
+                .map(OpenLGroup::getName)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         }
 
         public String description;
         public Set<String> roles;
-        public Set<String> privileges;
     }
 }

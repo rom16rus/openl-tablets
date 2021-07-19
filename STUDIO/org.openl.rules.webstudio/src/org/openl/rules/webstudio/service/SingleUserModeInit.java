@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.service;
 
 import org.openl.rules.security.standalone.dao.UserDao;
-import org.openl.rules.security.standalone.persistence.User;
+import org.openl.rules.security.standalone.persistence.OpenLUser;
 
 /**
  * Creates a user for single user mode.
@@ -9,9 +9,9 @@ import org.openl.rules.security.standalone.persistence.User;
 public class SingleUserModeInit {
     public SingleUserModeInit(UserDao userDao, String userName) {
         if (userDao.getUserByName(userName) == null) {
-            User persistUser = new User();
-            persistUser.setLoginName(userName);
-            userDao.save(persistUser);
+            OpenLUser persistOpenLUser = new OpenLUser();
+            persistOpenLUser.setLoginName(userName);
+            userDao.save(persistOpenLUser);
         }
     }
 }

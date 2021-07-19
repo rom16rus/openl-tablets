@@ -6,6 +6,7 @@ package org.openl.rules.security;
  * @author Aleh Bykhavets
  * @author NSamatov
  */
+@Deprecated
 public enum Privileges implements Privilege {
 
     VIEW_PROJECTS("View Projects"),

@@ -103,11 +103,14 @@ import com.thoughtworks.xstream.XStreamException;
  */
 public class WebStudio implements DesignTimeRepositoryListener {
 
+    public static final String ACCEPT_SHARING_NOTIFICATIONS = "accept.sharing.notifications";
+
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
-    private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName, String.CASE_INSENSITIVE_ORDER);
+    private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
+        String.CASE_INSENSITIVE_ORDER);
     private static final Comparator<ProjectDescriptor> PROJECT_DESCRIPTOR_COMPARATOR = Comparator
-            .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
+        .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
 
     private final RulesTreeView typeView = new TypeView();
     private final RulesTreeView fileView = new FileView();
@@ -138,6 +141,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private int testsFailuresPerTest;
     private boolean showComplexResult;
     private ModuleMode defaultModuleMode = ModuleMode.MULTI;
+
+    private boolean acceptSharingNotifications;
 
     private String currentRepositoryId;
     private ProjectDescriptor currentProject;
@@ -205,6 +210,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, "test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty(userName, "test.result.complex.show");
         showRealNumbers = userSettingsManager.getBooleanProperty(userName, "trace.realNumbers.show");
+        acceptSharingNotifications = userSettingsManager.getBooleanProperty(userName, ACCEPT_SHARING_NOTIFICATIONS);
 
         String defaultModuleMode = userSettingsManager.getStringProperty(userName, "project.module.default.mode");
         if (StringUtils.isNotEmpty(defaultModuleMode)) {
@@ -410,6 +416,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public synchronized List<ProjectDescriptor> getAllProjects() {
+        // check privileges there
         List<ProjectDescriptor> allProjects = new ArrayList<>();
         getProjects().values().forEach(allProjects::addAll);
         allProjects.sort(PROJECT_DESCRIPTOR_COMPARATOR);
@@ -420,6 +427,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (projects == null) {
             try {
                 projects = new HashMap<>();
+                // check privileges there?
                 LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
 
                 for (AProject project : localWorkspace.getProjects()) {
@@ -536,8 +544,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
                 } else if (needCompile || moduleChanged) {
-                    //if moduleChanged is true - we need to reset the project because we change tableSyntaxNode directly
-                    //must be rewritten - tableSyntaxNode must be changed only on project saving
+                    // if moduleChanged is true - we need to reset the project because we change tableSyntaxNode
+                    // directly
+                    // must be rewritten - tableSyntaxNode must be changed only on project saving
                     reset(ReloadType.SINGLE);
                 } else {
                     model.setModuleInfo(module);
@@ -713,21 +722,21 @@ public class WebStudio implements DesignTimeRepositoryListener {
             for (Module module : currentProject.getModules()) {
                 File moduleFile = module.getRulesPath().toFile();
                 String moduleHistoryPath = currentProject.getProjectFolder()
-                        .resolve(FolderHelper.HISTORY_FOLDER)
-                        .resolve(module.getName())
-                        .toString();
+                    .resolve(FolderHelper.HISTORY_FOLDER)
+                    .resolve(module.getName())
+                    .toString();
                 ProjectHistoryService.save(moduleHistoryPath, moduleFile);
             }
         }
     }
 
-    public void initProjectHistory(){
+    public void initProjectHistory() {
         for (Module module : currentProject.getModules()) {
             File moduleFile = module.getRulesPath().toFile();
             String moduleHistoryPath = currentProject.getProjectFolder()
-                    .resolve(FolderHelper.HISTORY_FOLDER)
-                    .resolve(module.getName())
-                    .toString();
+                .resolve(FolderHelper.HISTORY_FOLDER)
+                .resolve(module.getName())
+                .toString();
             ProjectHistoryService.init(moduleHistoryPath, moduleFile);
         }
     }
@@ -775,8 +784,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return newProjectDescriptor;
     }
 
-    public synchronized void forceUpdateProjectDescriptor(String repoId, ProjectDescriptor newProjectDescriptor,
-                                                          ProjectDescriptor oldProjectDescriptor) {
+    public synchronized void forceUpdateProjectDescriptor(String repoId,
+            ProjectDescriptor newProjectDescriptor,
+            ProjectDescriptor oldProjectDescriptor) {
         newProjectDescriptor.getModules().sort(MODULES_COMPARATOR);
         if (currentProject.equals(oldProjectDescriptor)) {
             currentProject = newProjectDescriptor;
@@ -1173,7 +1183,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             repositoryId = projects.entrySet()
                 .stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
+                .filter(
+                    entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
                 .findFirst()
                 .map(Map.Entry::getKey)
                 .orElse(currentRepositoryId);
@@ -1291,7 +1302,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return Collections.emptyList();
             }
             RulesProject project = getCurrentProject();
-            return ((BranchRepository) getCurrentProject().getDesignRepository()).getBranches(project.getDesignFolderName());
+            return ((BranchRepository) getCurrentProject().getDesignRepository())
+                .getBranches(project.getDesignFolderName());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
@@ -1309,7 +1321,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project.isModified()) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getDesignFolderName());
+            List<String> branches = ((BranchRepository) project.getDesignRepository())
+                .getBranches(project.getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }
@@ -1423,5 +1436,15 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean isShowRealNumbers() {
         return showRealNumbers;
+    }
+
+    public boolean isAcceptSharingNotifications() {
+        return acceptSharingNotifications;
+    }
+
+    public void setAcceptSharingNotifications(boolean acceptSharingNotifications) {
+        this.acceptSharingNotifications = acceptSharingNotifications;
+        userSettingsManager
+            .setProperty(rulesUserSession.getUserName(), ACCEPT_SHARING_NOTIFICATIONS, acceptSharingNotifications);
     }
 }

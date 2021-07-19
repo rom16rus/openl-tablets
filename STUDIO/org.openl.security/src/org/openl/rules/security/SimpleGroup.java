@@ -9,6 +9,7 @@ public class SimpleGroup implements Group {
     private String name;
     private String description;
     private Collection<Privilege> privileges;
+    private Boolean isAdministrator;
 
     public SimpleGroup() {
     }
@@ -18,10 +19,11 @@ public class SimpleGroup implements Group {
      *
      * @param privileges nested authorities (privileges and groups)
      */
-    public SimpleGroup(String name, String description, Collection<Privilege> privileges) {
+    public SimpleGroup(String name, String description, Collection<Privilege> privileges, Boolean isAdministrator) {
         this.name = name;
         this.description = description;
         this.privileges = privileges;
+        this.isAdministrator = isAdministrator;
     }
 
     @Override
@@ -78,22 +80,14 @@ public class SimpleGroup implements Group {
         return false;
     }
 
-    @Override
-    public boolean hasGroup(String groupName) {
-        for (Privilege privilege : privileges) {
-            if (privilege instanceof Group) {
-                Group x = (Group) privilege;
-                if (x.getName().equalsIgnoreCase(groupName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     @Override
     public String toString() {
         return name;
     }
 
+    @Override
+    public boolean isAdmin() {
+        return Boolean.TRUE.equals(isAdministrator);
+    }
 }

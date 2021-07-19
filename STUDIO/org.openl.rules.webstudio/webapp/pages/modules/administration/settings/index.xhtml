@@ -206,6 +206,12 @@
                     });
                 }
             }
+
+            function openShareRepository(){
+                RichFaces.$('modalShareRepository').show();
+            }
+
+
             //]]>
         </script>
 
@@ -259,8 +265,8 @@
                             <li>
                                 <a href="#groups">
                                     <h:graphicImage url="/webresource/images/admin/users/groups.png"
-                                                    alt="Groups &amp; Privileges"/>
-                                    <span>Groups &amp; Privileges</span>
+                                                    alt="Groups"/>
+                                    <span>Groups</span>
                                 </a>
                             </li>
                         </c:if>
@@ -443,6 +449,7 @@
                                                     <table>
                                                         <tr>
                                                             <td>
+                                                                <input type="button" id="shareRepositoryButton" value="Share" onclick="openShareRepository();"/>
                                                                 <h:panelGrid id="designInfoPanel" columns="2"
                                                                              columnClasses="titleColumn">
                                                                     <h:outputText value="Name:"/>
@@ -824,6 +831,8 @@
                 </div>
 
                 <ui:include src="/pages/modules/showInfo.xhtml"/>
+
+                <ui:include src="/pages/modules/administration/modal/shareRepository.xhtml"/>
             </div>
         </div>
 

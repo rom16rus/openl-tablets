@@ -65,6 +65,7 @@
                 <ref bean="propertyService"/>
                 <ref bean="designTimeRepositoryService"/>
                 <ref bean="tagConfigService"/>
+                <ref bean="shareService"/>
             </list>
         </property>
         <property name="providers">

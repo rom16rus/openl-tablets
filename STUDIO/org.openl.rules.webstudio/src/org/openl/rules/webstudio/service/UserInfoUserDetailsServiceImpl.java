@@ -4,8 +4,9 @@ import java.util.Collections;
 import java.util.function.Function;
 
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
 import org.openl.rules.security.standalone.dao.UserDao;
-import org.openl.rules.security.standalone.persistence.User;
+import org.openl.rules.security.standalone.persistence.OpenLUser;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,16 +33,18 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public org.openl.rules.security.User loadUserByUsername(String name) throws UsernameNotFoundException,
-                                                                         DataAccessException {
+    public User loadUserByUsername(String name) throws UsernameNotFoundException, DataAccessException {
         adminUsersInitializer.initIfSuperuser(name);
-        User user = userDao.getUserByName(name);
-        if (user == null) {
+        OpenLUser openLUser = userDao.getUserByName(name);
+        if (openLUser == null) {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
-        SimpleUser simpleUser = new SimpleUser(user
-            .getFirstName(), user.getSurname(), user.getLoginName(), user.getPasswordHash(), Collections.emptySet());
+        SimpleUser simpleUser = new SimpleUser(openLUser.getFirstName(),
+            openLUser.getSurname(),
+            openLUser.getLoginName(),
+            openLUser.getPasswordHash(),
+            Collections.emptySet());
         return authoritiesMapper.apply(simpleUser);
     }
 }

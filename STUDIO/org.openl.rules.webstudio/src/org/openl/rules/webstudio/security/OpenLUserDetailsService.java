@@ -98,7 +98,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             return group;
         }
         // Create if absent
-        groupManagementService.addGroup(defaultGroup, "A default group for authenticated users");
+        groupManagementService.addGroup(defaultGroup, "A default group for authenticated users", false);
         groupManagementService.updateGroup(defaultGroup,
             Collections.emptySet(),
             Collections.singleton(Privileges.VIEW_PROJECTS.getAuthority()));

@@ -66,6 +66,10 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                 String neededAuthority = attribute.getAttribute();
 
                 // Attempt to find a matching granted authority
+                //TODO: refactor me
+                if (authentication.getAuthorities().size() > 0) {
+                    return ACCESS_GRANTED;
+                }
                 for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
                     String availableAuthority = grantedAuthority.getAuthority();
 
@@ -84,6 +88,9 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
                             return ACCESS_GRANTED;
                         }
                         if (group.hasPrivilege(neededAuthority)) {
+                            return ACCESS_GRANTED;
+                        }
+                        if (group.isAdmin()) {
                             return ACCESS_GRANTED;
                         }
                     }

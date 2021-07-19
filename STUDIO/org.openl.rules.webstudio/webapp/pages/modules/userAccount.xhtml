@@ -181,6 +181,15 @@
                                 </h:panelGrid>
                             </div>
                         </section>
+                        <section>
+                            <h3>Notification Settings</h3>
+                            <div>
+                                <h:panelGrid columns="2" columnClasses="titleColumn">
+                                    <label>Receive emails when another user shares projects or modules with me:</label>
+                                    <h:selectBooleanCheckbox id="acceptSharingNotifications" value="#{studio.acceptSharingNotifications}"/>
+                                </h:panelGrid>
+                            </div>
+                        </section>
                     </div>
                 </rich:tab>
             </rich:tabPanel>

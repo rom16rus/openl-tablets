@@ -1,0 +1,96 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="modalShareProject" minWidth="530" autosized="true">
+
+        <f:facet name="header">
+            <h:outputText id="shareHeaderText" value=""/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideShareProjectDialog()" alt="Close"/>
+        </f:facet>
+
+        <h:form prependId="true" id="accessEditorForm" class="fields">
+
+        </h:form>
+
+        <h:outputText
+                value="There are no shared access to the project"
+                rendered="#{empty editorShareBean.accessEntries}"
+                style="margin: 25px 0"/>
+
+
+        <section id="accessTable">
+            <header class="row">
+                <div></div>
+                <div>User or Group</div>
+                <div>Access Level</div>
+            </header>
+            <div class="row">
+                <div><span class="shareCheckbox"></span></div>
+                <div><span class="name"/></div>
+                <div><span class="accessLevel"></span></div>
+            </div>
+        </section>
+
+        <footer>
+            <h:panelGroup styleClass="button-panel" layout="block">
+                <a4j:commandButton id="addAccessBtn" value="Add"/>
+                <a4j:commandButton id="editAccessBtn" value="Edit"/>
+
+                <!--            TODO removes all accesses? Bad design-->
+                <a4j:commandButton id="removeAccessBtn" value="Remove"/>
+            </h:panelGroup>
+        </footer>
+
+
+    </rich:popupPanel>
+
+    <script>
+
+        const SECURITY_OBJECT_TYPE = 'Project';
+
+        function openShareProjectDialog(repositoryId, projectName) {
+            initShareAccessDialog(repositoryId, projectName);
+        }
+
+        function showShareProjectDialog() {
+            RichFaces.$("modalShareProject").show();
+        }
+
+        function hideShareProjectDialog() {
+            RichFaces.$("modalShareProject").hide();
+        }
+
+        function defineShareDialogHeader(projectName) {
+            $j("#shareHeaderText").text("Share " + SECURITY_OBJECT_TYPE + ' ' + projectName);
+        }
+
+        function initShareAccessDialog(repositoryId, projectName) {
+            $j.ajax({
+                type: 'GET',
+                data: {'objectType': 'PROJECT', 'objectName': projectName},
+                url: '#{contextPath}/web/access',
+                datatype: 'json'
+            }).done(function (data) {
+                defineShareDialogHeader(projectName);
+
+                renderAccessTable(data);
+
+                showShareProjectDialog();
+            });
+        }
+
+        function renderAccessTable(data) {
+
+        }
+
+
+    </script>
+</ui:composition>

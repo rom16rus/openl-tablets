@@ -1,8 +1,11 @@
 package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -19,13 +23,14 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "OpenL_Users") // "USER" is a reserved word in SQL92/SQL99
-public class User implements Serializable {
+public class OpenLUser implements Serializable {
     private static final long serialVersionUID = 1L;
     private String loginName;
     private String passwordHash;
-    private Set<Group> groups;
+    private Set<OpenLGroup> openLGroups;
     private String firstName;
     private String surname;
+    private Set<OpenLAccessEntry> accessEntries = new HashSet<>();
 
     /**
      * First name.
@@ -38,11 +43,11 @@ public class User implements Serializable {
     /**
      * User's groups.
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
+    @ManyToMany(targetEntity = OpenLGroup.class, fetch = FetchType.LAZY, cascade = javax.persistence.CascadeType.MERGE)
     @JoinTable(name = "OpenL_User2Group", joinColumns = { @JoinColumn(name = "loginName") }, inverseJoinColumns = {
             @JoinColumn(name = "groupID") })
-    public Set<Group> getGroups() {
-        return groups;
+    public Set<OpenLGroup> getGroups() {
+        return openLGroups;
     }
 
     /**
@@ -74,8 +79,8 @@ public class User implements Serializable {
         this.firstName = firstName;
     }
 
-    public void setGroups(Set<Group> groups) {
-        this.groups = groups;
+    public void setGroups(Set<OpenLGroup> openLGroups) {
+        this.openLGroups = openLGroups;
     }
 
     public void setLoginName(String loginName) {
@@ -90,6 +95,21 @@ public class User implements Serializable {
         this.surname = surname;
     }
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = OpenLUserAccessEntry.class)
+    @JoinColumn(name = "loginName")
+    public Set<OpenLAccessEntry> getAccessEntries() {
+        return accessEntries;
+    }
+
+    public void setAccessEntries(Set<OpenLAccessEntry> accessEntries) {
+        this.accessEntries = accessEntries;
+    }
+
+    public void addAccessEntry(OpenLUserAccessEntry openLGroupAccessEntry) {
+        openLGroupAccessEntry.setUser(this);
+        accessEntries.add(openLGroupAccessEntry);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -97,9 +117,9 @@ public class User implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
 
-        User user = (User) o;
+        OpenLUser openLUser = (OpenLUser) o;
 
-        return loginName != null ? loginName.equals(user.loginName) : user.loginName == null;
+        return Objects.equals(loginName, openLUser.loginName);
     }
 
     @Override

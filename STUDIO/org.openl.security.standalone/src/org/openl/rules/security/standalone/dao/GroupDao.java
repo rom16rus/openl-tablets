@@ -1,19 +1,19 @@
 package org.openl.rules.security.standalone.dao;
 
-import org.openl.rules.security.standalone.persistence.Group;
-
 import java.util.List;
+
+import org.openl.rules.security.standalone.persistence.OpenLGroup;
 
 /**
  * Group dao.
  *
  * @author Andrey Naumenko
  */
-public interface GroupDao extends Dao<Group> {
+public interface GroupDao extends Dao<OpenLGroup> {
 
-    Group getGroupByName(String name);
+    OpenLGroup getGroupByName(String name);
 
     void deleteGroupByName(String name);
 
-    List<Group> getAllGroups();
+    List<OpenLGroup> getAllGroups();
 }

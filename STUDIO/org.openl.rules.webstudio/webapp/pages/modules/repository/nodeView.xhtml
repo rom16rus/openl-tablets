@@ -44,6 +44,7 @@
     <c:set var="mergeMessage" value="Synchronize updates"/>
     <c:set var="copyMessage"
            value="Create a new project in Design Repository with a different project name but the same content "/>
+    <c:set var="shareMessage" value="Share"/>
 
     <h:panelGroup rendered="#{node.type != 'deployment'}">
         <div class="nav-panel">
@@ -52,11 +53,18 @@
                                  onclick="if (!canOverwriteRevision()) return false; openUpdateFileDialog();return false;"
                                  title="Upload the updated file"/>
                 <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}"
-                                 value="Export file" onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.internalArtifactPath.stringValue}');return false;"
+                                 value="Export file"
+                                 onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.internalArtifactPath.stringValue}');return false;"
                                  title="Export file"/>
                 <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file"
                                  onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"
                                  title="Copy file"/>
+
+<!--                TODO only module-->
+                <h:commandButton id="shareId"
+                                 value="Share"
+                                 onclick="openShareFileDialog();return false;"
+                                 title="#{shareMessage}"/>
                 <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete"
                                  onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
                                  title="Delete the file"/>
@@ -75,6 +83,7 @@
             </h:panelGroup>
 
             <h:panelGroup rendered="#{node.type == 'project'}">
+
                 <h:panelGroup rendered="#{artefact.deleted}">
                     <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
                                      onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
@@ -100,6 +109,11 @@
                                              onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? 'openCloseProjectDialog();return false;' : ''}"/>
                         </h:panelGroup>
 
+                        <h:commandButton id="shareId1"
+                                         value="Share"
+                                         onclick="openShareProjectDialog();return false;"
+                                         title="#{shareMessage}"/>
+
                         <h:panelGroup
                                 rendered="#{environment.getProperty('user.mode') == 'single' and artefact.opened}">
                             <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open"
@@ -113,7 +127,6 @@
                                              onclick="openCloseProjectDialog();return false;"
                                              title="#{closeMessage}"/>
                         </h:panelGroup>
-
                         <h:commandButton id="saveId1"
                                          rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}"
                                          value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
@@ -126,7 +139,8 @@
                         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"
                                          onclick="#{rich:component('modalDeleteNode')}.show();return false;"
                                          title="#{deleteMessage}"/>
-                        <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}" value="Delete Branch"
+                        <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}"
+                                         value="Delete Branch"
                                          onclick="openDeleteBranchDialog();return false;"
                                          title="#{deleteBranchMessage}"/>
 
@@ -259,14 +273,14 @@
                         </td>
                     </tr>
                     <ui:fragment rendered="#{node.type == 'project' and not repositoryTreeState.localOnly }">
-                    <tr>
-                        <td class="label">
-                            <h:outputText value="Repository:"/>
-                        </td>
-                        <td>
-                            <h:outputText value="#{artefact.repository.name}"/>
-                        </td>
-                    </tr>
+                        <tr>
+                            <td class="label">
+                                <h:outputText value="Repository:"/>
+                            </td>
+                            <td>
+                                <h:outputText value="#{artefact.repository.name}"/>
+                            </td>
+                        </tr>
                     </ui:fragment>
                     <ui:fragment rendered="#{utils.supportsMappedFolders(artefact) }">
                         <tr>
@@ -376,7 +390,8 @@
                 <h:commandButton id="unlockId2"
                                  rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}"
                                  value="Unlock Deploy Configuration"
-                                 onclick="openSelectedUnlockDialog('deployment');return false;" title="#{unlockMessage}">
+                                 onclick="openSelectedUnlockDialog('deployment');return false;"
+                                 title="#{unlockMessage}">
                     <f:ajax render="unlockId2"/>
                 </h:commandButton>
             </h:panelGroup>

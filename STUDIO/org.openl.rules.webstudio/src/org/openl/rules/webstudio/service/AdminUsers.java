@@ -48,7 +48,7 @@ public class AdminUsers {
     }
 
     public boolean isSuperuser(String username) {
-        return administrators.contains(username)   ;
+        return administrators.contains(username);
     }
 
     public void initIfSuperuser(String username) {
@@ -81,13 +81,13 @@ public class AdminUsers {
             }
         }
         if (!groupService.isGroupExist(ADMIN_GROUP)) {
-            groupService.addGroup(ADMIN_GROUP, "A group with ADMIN privileges (restored)");
+            groupService.addGroup(ADMIN_GROUP, "A group with ADMIN privileges (restored)", true);
             groupService.updateGroup(ADMIN_GROUP, Collections.emptySet(), Collections.singleton(ADMIN));
             return ADMIN_GROUP;
         }
         String group = (user + "_Group");
         if (!groupService.isGroupExist(group)) {
-            groupService.addGroup(group, "A group for restoring ADMIN privileges");
+            groupService.addGroup(group, "A group for restoring ADMIN privileges", true);
         }
         groupService.updateGroup(group, Collections.emptySet(), Collections.singleton(ADMIN));
         return group;

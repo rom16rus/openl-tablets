@@ -13,8 +13,6 @@ public interface Group extends Privilege {
 
     Collection<Privilege> getPrivileges();
 
-    // List<Group> getGroups();
-
     /**
      * Returns true if this group contains given privilege
      *
@@ -23,11 +21,6 @@ public interface Group extends Privilege {
      */
     boolean hasPrivilege(String privilege);
 
-    /**
-     * Checks the 1st level group dependencies
-     * @param groupName name of group
-     * @return true if group contains given group directly
-     */
-    boolean hasGroup(String groupName);
+    boolean isAdmin();
 
 }

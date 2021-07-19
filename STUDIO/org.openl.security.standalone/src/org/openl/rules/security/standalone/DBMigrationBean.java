@@ -6,6 +6,9 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -21,6 +24,7 @@ public class DBMigrationBean {
     private static final Logger LOG = LoggerFactory.getLogger(DBMigrationBean.class);
 
     private DataSource dataSource;
+    private List<String> locations;
 
     public void init() throws SQLException, IOException {
 
@@ -30,7 +34,7 @@ public class DBMigrationBean {
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }
 
-        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+        locations.add("/db/flyway/" + databaseCode);
 
         TreeMap<String, String> placeholders = new TreeMap<>();
         for (String location : locations) {
@@ -43,12 +47,16 @@ public class DBMigrationBean {
         flyway.setTable("openl_security_flyway");
         flyway.setPlaceholders(placeholders);
 
-        flyway.setLocations(locations);
+        flyway.setLocations(locations.toArray(new String[0]));
         flyway.migrate();
     }
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public void setLocations(String locations) {
+        this.locations = new ArrayList<>(Arrays.asList(locations.split(",")));
     }
 
     private void fillQueries(Map<String, String> queries, String propertiesFileName) throws IOException {

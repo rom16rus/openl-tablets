@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.rules.security.Group;
 import org.openl.rules.security.standalone.dao.GroupDao;
-import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.security.standalone.persistence.OpenLGroup;
 
 /**
  * @author Andrei Astrouski
@@ -19,21 +20,21 @@ public class GroupManagementService {
         this.groupDao = groupDao;
     }
 
-    public List<org.openl.rules.security.Group> getGroups() {
-        List<Group> groups = groupDao.getAllGroups();
-        List<org.openl.rules.security.Group> resultGroups = new ArrayList<>();
+    public List<Group> getGroups() {
+        List<OpenLGroup> openLGroups = groupDao.getAllGroups();
+        List<Group> resultGroups = new ArrayList<>();
 
-        for (Group group : groups) {
-            resultGroups.add(PrivilegesEvaluator.wrap(group));
+        for (OpenLGroup openLGroup : openLGroups) {
+            resultGroups.add(PrivilegesEvaluator.wrap(openLGroup));
         }
 
         return resultGroups;
     }
 
-    public org.openl.rules.security.Group getGroupByName(String name) {
-        Group group = groupDao.getGroupByName(name);
-        if (group != null) {
-            return PrivilegesEvaluator.wrap(group);
+    public Group getGroupByName(String name) {
+        OpenLGroup openLGroup = groupDao.getGroupByName(name);
+        if (openLGroup != null) {
+            return PrivilegesEvaluator.wrap(openLGroup);
         }
         return null;
     }
@@ -42,36 +43,37 @@ public class GroupManagementService {
         return groupDao.getGroupByName(name) != null;
     }
 
-    public void addGroup(String name, String description) {
-        Group persistGroup = new Group();
-        persistGroup.setName(name);
-        persistGroup.setDescription(description);
-        groupDao.save(persistGroup);
+    public void addGroup(String name, String description, boolean isAdministrator) {
+        OpenLGroup persistOpenLGroup = new OpenLGroup();
+        persistOpenLGroup.setName(name);
+        persistOpenLGroup.setDescription(description);
+        persistOpenLGroup.setAdministrator(isAdministrator);
+        groupDao.save(persistOpenLGroup);
     }
 
     public void updateGroup(String name, String newName, String description) {
-        Group persistGroup = groupDao.getGroupByName(name);
-        persistGroup.setName(newName);
-        persistGroup.setDescription(description);
-        groupDao.update(persistGroup);
+        OpenLGroup persistOpenLGroup = groupDao.getGroupByName(name);
+        persistOpenLGroup.setName(newName);
+        persistOpenLGroup.setDescription(description);
+        groupDao.update(persistOpenLGroup);
     }
 
     public void updateGroup(String name, Set<String> groups, Set<String> privileges) {
-        Group persistGroup = groupDao.getGroupByName(name);
+        OpenLGroup persistOpenLGroup = groupDao.getGroupByName(name);
 
-        Set<Group> includedGroups = new HashSet<>();
+        Set<OpenLGroup> includedOpenLGroups = new HashSet<>();
         for (String group : groups) {
-            Group includedGroup = groupDao.getGroupByName(group);
-            if (!persistGroup.equals(includedGroup)) {
+            OpenLGroup includedOpenLGroup = groupDao.getGroupByName(group);
+            if (!persistOpenLGroup.equals(includedOpenLGroup)) {
                 // Persisting group should not include itself
-                includedGroups.add(includedGroup);
+                includedOpenLGroups.add(includedOpenLGroup);
             }
         }
 
-        persistGroup.setIncludedGroups(!includedGroups.isEmpty() ? includedGroups : null);
-        persistGroup.setPrivileges(privileges);
+        persistOpenLGroup.setIncludedGroups(!includedOpenLGroups.isEmpty() ? includedOpenLGroups : null);
+        // persistOpenLGroup.setPrivileges(privileges);
 
-        groupDao.update(persistGroup);
+        groupDao.update(persistOpenLGroup);
     }
 
     public void deleteGroup(String name) {

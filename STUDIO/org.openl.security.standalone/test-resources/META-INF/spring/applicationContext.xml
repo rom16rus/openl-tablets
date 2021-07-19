@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd"
+       default-autowire="no">
+
+    <tx:annotation-driven/>
+
+    <bean id="openlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="${db.driverClass}"/>
+        <property name="jdbcUrl" value="${db.url}"/>
+        <property name="username" value="${db.user}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
+
+    <bean id="openlSessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+          depends-on="dbMigration">
+        <property name="dataSource" ref="openlDataSource"/>
+        <property name="configLocation"
+                  value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.use_sql_comments">false</prop>
+                <prop key="hibernate.jdbc.batch_size">0</prop>
+                <prop key="hibernate.id.new_generator_mappings">false</prop>
+                <prop key="hibernate.connection.pool_size">100</prop>
+                <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+                <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
+
+                <!-- Fix incompatibility of hibernate libs in JBoss AS -->
+                <prop key="hibernate.validator.apply_to_ddl">false</prop>
+                <prop key="hibernate.validator.autoregister_listeners">false</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager"
+          p:sessionFactory-ref="openlSessionFactory"/>
+
+    <bean id="openlUserDao" class="org.openl.rules.security.standalone.dao.HibernateUserDao">
+        <property name="sessionFactory" ref="openlSessionFactory"/>
+    </bean>
+
+    <bean id="groupDao" class="org.openl.rules.security.standalone.dao.HibernateGroupDao">
+        <property name="sessionFactory" ref="openlSessionFactory"/>
+    </bean>
+
+    <bean id="openlUserSettingDao" class="org.openl.rules.security.standalone.dao.HibernateUserSettingDao">
+        <property name="sessionFactory" ref="openlSessionFactory"/>
+    </bean>
+
+    <bean id="dbMigration" class="org.openl.rules.security.standalone.DBMigrationBean" init-method="init">
+        <property name="dataSource" ref="openlDataSource"/>
+        <property name="locations" value="${flyway.locations}"/>
+    </bean>
+
+    <bean id="openlSecurityObjectDao"
+          class="org.openl.rules.security.standalone.dao.HibernateOpenLSecurityObjectDaoImpl">
+        <property name="sessionFactory" ref="openlSessionFactory"/>
+    </bean>
+
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>application.properties</value>
+            </list>
+        </property>
+    </bean>
+</beans>

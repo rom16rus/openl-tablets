@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalShareRepository" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Share reposoitory"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideShareRepository()" alt="Close"/>
+        </f:facet>
+
+        <h:form id="shareRepositoryForm">
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        function hideShareRepository() {
+            RichFaces.$("modalShareRepository").hide();
+        }
+    </script>
+
+</ui:composition>

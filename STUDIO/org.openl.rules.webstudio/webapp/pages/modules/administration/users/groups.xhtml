@@ -58,65 +58,6 @@
             background-color: #FAE5C1;
         }
 
-        #privilegesTable {
-            display: table;
-            font-size: 100%;
-        }
-
-        #privilegesTable > div {
-            display: table-row;
-        }
-
-        #privilegesTable > div:hover {
-            background-color: #FAE5C1;
-        }
-
-        #privilegesTable > div > div {
-            padding: 6px 11px;
-            text-align: center;
-            display: table-cell;
-            border-bottom: 1px dotted #ccc;
-
-        }
-
-        #privilegesTable > div > label {
-            display: table-cell;
-            border-bottom: 1px dotted #ccc;
-
-        }
-
-        #privilegesTable > div:first-child {
-            font-weight: bold;
-        }
-
-        #privilegesTable > div:first-child > div {
-            text-align: left;
-        }
-
-        #privilegesTable > div:first-child > div {
-            border-bottom: 1px solid #ccc;
-        }
-
-        #privilegesTable > div:first-child > label {
-            border-bottom: 1px solid #ccc;
-            display: table-cell;
-            cursor: pointer;
-            color: #29d;
-        }
-
-        #privilegesTable > div:first-child > label div {
-            padding: 6px;
-        }
-
-        #privilegesTable > div:first-child input[type="checkbox"] {
-            display: none;
-        }
-
-        #privilegesTable > div:first-child input[type="checkbox"]:checked + div {
-            background: #77d100;
-            color: #fff;
-        }
-
     </style>
 
     <section id="groupsTable">
@@ -145,7 +86,7 @@
             <span class="close-icon clickable icon-small" onclick="hideAddGroup()" style="margin: 8px 4px;"/>
         </f:facet>
 
-        <form id="addEditGroupForm" style="height: 530px; overflow: auto;">
+        <form id="addEditGroupForm" style="height: 180px; overflow: auto;">
             <table cellspacing="5">
                 <tr>
                     <td>
@@ -165,8 +106,23 @@
                         <input type="text" name="description" style="width: 100%" maxlength="200"/>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <label>Is an administator group:</label>
+                    </td>
+                    <td style="width: 100%; padding-right: 11px;">
+                        <input type="checkbox" name="isAdmin" style="width: 100%;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Is an external group:</label>
+                    </td>
+                    <td style="width: 100%; padding-right: 11px;">
+                        <input type="checkbox" name="isExternal" style="width: 100%;"/>
+                    </td>
+                </tr>
             </table>
-            <div id="privilegesTable"/>
         </form>
 
         <footer>
@@ -337,52 +293,6 @@
             $j('#groupsTable').trigger('refresh');
 
 
-            $j("#privilegesTable input[name=group]").live("change", function (e) {
-                var role = $j(e.target).val();
-                if (this.checked) {
-                    checkPrivilegesByGroup(role);
-                } else {
-                    uncheckPrivilegesByGroups();
-                }
-            });
-
-            $j("#privilegesTable input[name=privilege]").live("change", function (e) {
-                if (!this.checked) {
-                    var privilege = $j(e.target).val();
-                    // deselect group contains given privelege
-                    $j("input[name=group]:checked").each(function () {
-                        var role = $j(this).val();
-                        if ($j.inArray(privilege, groups[role].allPrivileges) !== -1) {
-                            $j("#privilegesTable input[name=group][value=" + role + "]").prop("checked", false);
-                        }
-                    });
-                    uncheckPrivilegesByGroups();
-                }
-            });
-
-            function checkPrivilegesByGroup(role) {
-                var group = groups[role];
-                group && group.allPrivileges.forEach(function (privilege) {
-                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + privilege + "]");
-                    checkBox.prop("checked", false);
-                    checkBox.prop("indeterminate", true);
-                });
-
-            }
-
-            function uncheckPrivilegesByGroups() {
-                var allPrivileges = [];
-                $j("input[name=group]:checked").each(function () {
-                    var role = $j(this).val();
-                    allPrivileges = allPrivileges.concat(groups[role].allPrivileges);
-                });
-                $j("input[name=privilege]:not(:checked)").each(function () {
-                    var privilege = $j(this).val();
-                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + privilege + "]");
-                    checkBox.prop("indeterminate", $j.inArray(privilege, allPrivileges) !== -1);
-                });
-            }
-
             function editGroup(name, description, isOnlyAdmin) {
                 $j("#addEditGroupForm .error").text("");
                 $j("#addEditGroupForm input[name=name]").val(name);
@@ -397,47 +307,7 @@
                         allowedGroups[name] = gr;
                     }
                 });
-                render(allowedGroups, privileges);
-                openGroup(name);
-                $j("#privilegesTable input[value=ADMIN]").parent().toggleClass("disabled", isOnlyAdmin === true);
-
                 RichFaces.$("modalAddEditGroup").show();
-            }
-
-            function openGroup(name) {
-                checkPrivilegesByGroup(name);
-                var group = groups[name];
-                group && group.privileges && group.privileges.forEach(function (priv) {
-                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + priv + "]");
-                    checkBox.prop("checked", true);
-                    checkBox.prop("indeterminate", false);
-                });
-                group && group.roles && group.roles.forEach(function (role) {
-                    $j("#privilegesTable input[name=group][value=" + role + "]").prop("checked", true);
-                });
-            }
-
-            function render(groups, privileges) {
-                var html = "<div><div style='min-width: 150px;'>Privilege:</div>";
-                $j.each(groups, function (name, gr) {
-                    html += "<label><input type='checkbox' value='" + text(name) + "' name='group'><div>" + text(name) + "</div></label>";
-                });
-                html += "</div>";
-                $j.each(privileges, function (code, value) {
-                    html += "<div><label><input type='checkbox' value='" + code + "' name='privilege'>" + value + "</label>";
-                    $j.each(groups, function (name, gr) {
-                        if ($j.inArray(code, gr.privileges) !== -1) {
-                            html += "<div><span class='yes-icon'/></div>";
-                        } else if ($j.inArray(code, gr.allPrivileges) !== -1) {
-                            html += "<div><span class='check-icon'/></div>";
-                        } else {
-                            html += "<div><span class='empty-icon'/></div>";
-                        }
-                    });
-                    html += "</div>";
-                });
-
-                $j("#privilegesTable").html(html);
             }
 
         })();

@@ -671,7 +671,8 @@ public class RepositoryTreeController {
     }
 
     private String validateCreateProjectParams(String comment) {
-        return Stream.<Supplier<String>> of(this::validateRepositoryId,
+        return Stream
+            .<Supplier<String>> of(this::validateRepositoryId,
                 this::validateProjectName,
                 this::validateProjectFolder,
                 () -> validateCreateProjectComment(comment))
@@ -695,7 +696,7 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            }else if (NameChecker.isReservedName(projectName)) {
+            } else if (NameChecker.isReservedName(projectName)) {
                 msg = "Specified project name is a reserved word.";
             } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
@@ -1516,6 +1517,7 @@ public class RepositoryTreeController {
      * @return list of rules projects
      */
     public List<TreeNode> getRulesProjects() {
+        // filter there by permissions?
         final TreeNode node = getSelectedNode();
         final List<TreeNode> rulesProjects = getRulesProjects(node);
         rulesProjects.sort(Comparator.comparing(treeNode -> treeNode.getName().toLowerCase()));
@@ -1525,7 +1527,7 @@ public class RepositoryTreeController {
     private List<TreeNode> getRulesProjects(TreeNode node) {
         List<TreeNode> list = new ArrayList<>();
         for (TreeNode treeNode : node.getChildNodes()) {
-            if (UiConst.TYPE_PROJECT .equals(treeNode.getType())) {
+            if (UiConst.TYPE_PROJECT.equals(treeNode.getType())) {
                 list.add(treeNode);
             } else if (UiConst.TYPE_GROUP.equals(treeNode.getType())) {
                 list.addAll(getRulesProjects(treeNode));
@@ -1690,7 +1692,8 @@ public class RepositoryTreeController {
                 }
             }
         } else if (node instanceof TreeProject || node instanceof TreeDProject) {
-            if (node.getData().getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
+            if (node.getData().getName().equals(projectName) && repositoryId
+                .equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 return true;
             }

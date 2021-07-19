@@ -29,6 +29,10 @@
         <ui:include src="/pages/modules/repository/modal/smartEditorRedeploy.xhtml" />
     </h:panelGroup>
 
+    <h:panelGroup>
+        <ui:include src="/pages/modules/repository/modal/shareProject.xhtml"/>
+    </h:panelGroup>
+
     <h:panelGroup rendered="#{!empty rProject and rProject.openedForEditing and studio.model.editable}">
         <ui:param name="artefact" value="#{rProject}"/>
         <ui:include src="/pages/modules/saveRevision.xhtml" />
@@ -134,6 +138,7 @@
                                value="Sync"
                                title="Synchronize updates"
                                rendered="#{studio.canMerge}" />
+                <h:commandLink styleClass="changes-listener" onclick="openShareProjectDialog('#{rProject.repository.id}', '#{rProject.name}'); return false;" value="Share" title="Share"/>
                 <h:commandLink styleClass="changes-listener" onclick="openSmartRedeployDialogFromEditor('#{rProject.repository.id}', '#{rProject.name}'); return false;" value="Deploy"
                                id="deployProjectButton"
                                title="Deploy the project"

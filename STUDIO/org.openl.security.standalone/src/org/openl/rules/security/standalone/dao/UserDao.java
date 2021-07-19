@@ -1,15 +1,16 @@
 package org.openl.rules.security.standalone.dao;
 
-import org.openl.rules.security.standalone.persistence.User;
-
 import java.util.List;
+
+import org.openl.rules.security.standalone.persistence.OpenLUser;
+import org.openl.rules.security.standalone.persistence.OpenLUserAccessEntry;
 
 /**
  * User dao.
  *
  * @author Andrey Naumenko
  */
-public interface UserDao extends Dao<User> {
+public interface UserDao extends Dao<OpenLUser> {
     /**
      * Return User by name or <code>null</code> if no such User.
      *
@@ -17,9 +18,12 @@ public interface UserDao extends Dao<User> {
      *
      * @return User or <code>null</code>.
      */
-    User getUserByName(String name);
+    OpenLUser getUserByName(String name);
 
     void deleteUserByName(String name);
 
-    List<User> getAllUsers();
+    List<OpenLUser> getAllUsers();
+
+    List<OpenLUserAccessEntry> getUserAccessRights(String loginName);
+
 }
