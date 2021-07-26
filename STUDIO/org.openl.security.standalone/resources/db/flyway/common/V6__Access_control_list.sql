@@ -42,3 +42,47 @@ CREATE TABLE OpenL_Group_Access_Entry
     CONSTRAINT fk_OpenL_Group_Access_Entry_OpenL_Security_Objects FOREIGN KEY (objectId) REFERENCES OpenL_Security_Objects (id) ON DELETE CASCADE,
     CONSTRAINT fk_OpenL_Group_Access_Entry_OpenL_Groups FOREIGN KEY (groupId) REFERENCES OpenL_Groups (id) ON DELETE CASCADE
 );
+
+ALTER TABLE OpenL_Group2Group
+    ADD COLUMN level ${bigint};
+
+UPDATE OpenL_Group2Group
+SET level = 1
+WHERE groupid = (SELECT id
+                 from openl_groups
+                 where groupname = 'Developers')
+    and includedgroupid = (SELECT id
+                           from openl_groups
+                           where groupname = 'Viewers')
+   OR groupid = (SELECT id
+                 from openl_groups
+                 where groupname = 'Testers')
+    and includedgroupid = (SELECT id
+                           from openl_groups
+                           where groupname = 'Viewers')
+   OR groupid = (SELECT id
+                 from openl_groups
+                 where groupname = 'Deployers')
+    and includedgroupid = (SELECT id
+                           from openl_groups
+                           where groupname = 'Viewers')
+   OR groupid = (SELECT id
+                 from openl_groups
+                 where groupname = 'Analysts')
+    and includedgroupid = (SELECT id
+                           from openl_groups
+                           where groupname = 'Developers')
+   OR groupid = (SELECT id
+                 from openl_groups
+                 where groupname = 'Analysts')
+    and includedgroupid = (SELECT id
+                           from openl_groups
+                           where groupname = 'Testers');
+
+INSERT INTO openl_group2group(groupid, includedgroupid, level)
+VALUES ((select id from openl_groups where groupname = 'Analysts'),
+        (select id from openl_groups where groupname = 'Viewers'),
+        2);
+
+ALTER TABLE OpenL_Group2Group
+    ALTER COLUMN level SET not null;

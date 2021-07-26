@@ -20,16 +20,16 @@ INSERT INTO Openl_Security_Objects(objectName, objectType)
 VALUES ('designDB/DESIGN/rules/checkProject', 'PROJECT');
 
 INSERT INTO Openl_Security_Objects(objectName, objectType)
-VALUES ('DESIGN/rules/1234Project/models', 'MODULE');
+VALUES ('DESIGN/rules/1234Project/Models.xlsx', 'MODULE');
 
 INSERT INTO Openl_Security_Objects(objectName, objectType)
-VALUES ('DESIGN/rules/1234Project/algorithms', 'MODULE');
+VALUES ('DESIGN/rules/1234Project/Algorithms.xlsx', 'MODULE');
 
 INSERT INTO Openl_Security_Objects(objectName, objectType)
-VALUES ('DESIGN/rules/testProject/models', 'MODULE');
+VALUES ('DESIGN/rules/testProject/Models.xlsx', 'MODULE');
 
 INSERT INTO Openl_Security_Objects(objectName, objectType)
-VALUES ('DESIGN/rules/checkProject/AutoPolicyCalculation', 'MODULE');
+VALUES ('DESIGN/rules/checkProject/AutoPolicyCalculation.xlsx', 'MODULE');
 
 INSERT INTO OpenL_Groups(groupName)
 VALUES ('ClassicGroup');
@@ -46,8 +46,8 @@ VALUES ('ParentGroup');
 INSERT INTO Openl_Groups(groupName)
 VALUES ('SubGroup');
 
-INSERT INTO Openl_Group2Group(groupId, includedGroupId)
-SELECT p.id, n.id
+INSERT INTO Openl_Group2Group(groupId, includedGroupId, level)
+SELECT p.id, n.id, 1
 FROM (SELECT id FROM OpenL_Groups WHERE groupName = 'ParentGroup') p,
      (SELECT id FROM OpenL_Groups WHERE groupName = 'SubGroup') n;
 
@@ -82,7 +82,7 @@ FROM (SELECT id from openl_groups WHERE groupname = 'ClassicGroup') g,
 
 INSERT INTO openl_user_access_entry(loginname, accesslevel, objectid)
 SELECT 'John', 'FORBIDDEN', o.id
-FROM (SELECT id from openl_security_objects WHERE objectname = 'DESIGN/rules/testProject/Corporate Rating') o;
+FROM (SELECT id from openl_security_objects WHERE objectname = 'DESIGN/rules/testProject/Models.xlsx') o;
 
 
 INSERT INTO Openl_User2Group(loginName, groupId)

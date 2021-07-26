@@ -12,5 +12,6 @@
         <mapping class="org.openl.rules.security.standalone.persistence.OpenLGroupAccessEntry"/>
         <mapping class="org.openl.rules.security.standalone.persistence.OpenLUserAccessEntry"/>
         <mapping class="org.openl.rules.security.standalone.persistence.OpenLSecurityObject"/>
+        <mapping class="org.openl.rules.security.standalone.persistence.OpenLGroup2Group"/>
     </session-factory>
 </hibernate-configuration>

@@ -8,7 +8,7 @@ public enum AccessLevel implements Privilege {
     EDITOR("Editor", (byte) 2),
     DEPLOYER("Deployer", (byte) 1),
     VIEWER("Viewer", (byte) 0),
-    FORBIDDEN("Forbidden", (byte) -1);
+    FORBIDDEN("Forbidden", (byte) 127);
 
     private final String displayName;
     private final byte priority;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
@@ -25,13 +26,24 @@ public class HibernateUserDao extends BaseHibernateDao<OpenLUser> implements Use
     @Override
     @Transactional
     public OpenLUser getUserByName(final String name) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<OpenLUser> criteria = builder.createQuery(OpenLUser.class);
-        Root<OpenLUser> u = criteria.from(OpenLUser.class);
-        u.fetch("accessEntries", JoinType.LEFT);
-        criteria.select(u).where(builder.equal(u.get("loginName"), name)).distinct(true);
-        List<OpenLUser> results = getSession().createQuery(criteria).getResultList();
-        return results.stream().findFirst().orElse(null);
+        return (OpenLUser) getSession().createQuery(
+            "select distinct u from OpenLUser u" +
+                    " left join fetch u.accessEntries uae " +
+                    " left join fetch uae.openLSecurityObject " +
+                    " left join fetch u.groups ug " +
+                    " left join fetch ug.accessEntries ugae" +
+                    " left join fetch ugae.openLSecurityObject " +
+                    " left join fetch ug.includedGroupLinks ggl " +
+                    " left join fetch ug.parentGroupLinks pgl "+
+                    " left join fetch pgl.parentGroup pg " +
+                    " left join fetch pg.accessEntries pgae" +
+                    " left join fetch pgae.openLSecurityObject" +
+                    " left join fetch ggl.includedGroup ig "  +
+                    " left join fetch ig.accessEntries igae " +
+                    " left join fetch igae.openLSecurityObject "
+                    + " where (u.loginName = :name)")
+            .setParameter("name", name)
+            .uniqueResult();
     }
 
     @Override
@@ -44,13 +56,25 @@ public class HibernateUserDao extends BaseHibernateDao<OpenLUser> implements Use
 
     @Override
     @Transactional
+    @SuppressWarnings("unchecked")
     public List<OpenLUser> getAllUsers() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<OpenLUser> criteria = builder.createQuery(OpenLUser.class);
-        Root<OpenLUser> root = criteria.from(OpenLUser.class);
-        root.fetch("accessEntries", JoinType.LEFT);
-        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("loginName"))));
-        return getSession().createQuery(criteria).getResultList();
+        return (List<OpenLUser>) getSession().createQuery(
+            "select distinct u from OpenLUser u " +
+                    " left join fetch u.accessEntries ae " +
+                    " left join fetch ae.openLSecurityObject" +
+                    " left join fetch u.groups ug " +
+                    " left join fetch ug.accessEntries ugae"
+                    +" left join fetch ugae.openLSecurityObject "
+                    + " left join fetch ug.includedGroupLinks g2g " +
+                    " left join fetch ug.parentGroupLinks p2g " +
+                    " left join fetch g2g.includedGroup ig "
+                    + " left join fetch ig.accessEntries igae "
+                    + " left join fetch igae.openLSecurityObject "
+                    + " left join fetch p2g.parentGroup pg "+
+                    " left join fetch pg.accessEntries pgae"
+                    + " left join fetch pgae.openLSecurityObject"
+                    + " order by u.loginName")
+            .getResultList();
     }
 
     @Override
@@ -66,7 +90,4 @@ public class HibernateUserDao extends BaseHibernateDao<OpenLUser> implements Use
         return session.createQuery(userCriteriaQuery).getResultList();
     }
 
-    public List<OpenLAccessEntry> getUserAccessEntries(String loginName) {
-        return new ArrayList<>();
-    }
 }

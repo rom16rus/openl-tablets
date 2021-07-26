@@ -1,11 +1,16 @@
 package org.openl.security.standalone;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.rules.security.standalone.PrivilegesEvaluator;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.OpenLAccessEntry;
-import org.openl.rules.security.standalone.persistence.OpenLGroup;
+import org.openl.rules.security.standalone.persistence.OpenLSecurityObject;
 import org.openl.rules.security.standalone.persistence.OpenLUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,10 +30,28 @@ public class OpenLAccessEntryDaoTest {
     @Test
     public void testJohnPermissions() {
         final OpenLUser userJohn = userDao.getUserByName("John");
-        final Set<OpenLAccessEntry> accessEntries = userJohn.getAccessEntries();
-        final Set<OpenLGroup> groups = userJohn.getGroups();
-        // the same as for collecting priviliges?
-        // grouping the permissions by objects and link them
+        final Collection<OpenLAccessEntry> accessEntries = PrivilegesEvaluator.createAccessEntries(userJohn);
+        final Map<OpenLSecurityObject, List<OpenLAccessEntry>> accessMap = accessEntries.stream()
+            .collect(Collectors.groupingBy(OpenLAccessEntry::getOpenLSecurityObject));
+        accessMap.size();
+    }
+
+    @Test
+    public void testMichaelPermissions() {
+        final OpenLUser userMichael = userDao.getUserByName("Michael");
+        final Collection<OpenLAccessEntry> accessEntries = PrivilegesEvaluator.createAccessEntries(userMichael);
+        final Map<OpenLSecurityObject, List<OpenLAccessEntry>> accessMap = accessEntries.stream()
+            .collect(Collectors.groupingBy(OpenLAccessEntry::getOpenLSecurityObject));
+        accessMap.size();
+    }
+
+    @Test
+    public void testAnnPermissions() {
+        final OpenLUser userAnn = userDao.getUserByName("Ann");
+        final Collection<OpenLAccessEntry> accessEntries = PrivilegesEvaluator.createAccessEntries(userAnn);
+        final Map<OpenLSecurityObject, List<OpenLAccessEntry>> accessMap = accessEntries.stream()
+            .collect(Collectors.groupingBy(OpenLAccessEntry::getOpenLSecurityObject));
+        accessMap.size();
     }
 
 }

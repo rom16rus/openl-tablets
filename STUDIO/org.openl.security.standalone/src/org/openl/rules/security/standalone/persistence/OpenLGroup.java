@@ -14,8 +14,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -35,7 +33,8 @@ public class OpenLGroup implements Serializable {
     private Long id;
     private String name;
     private String description;
-    private Set<OpenLGroup> includedOpenLGroups;
+    private Set<OpenLGroup2Group> includedGroupLinks = new HashSet<>();
+    private Set<OpenLGroup2Group> parentGroupLinks = new HashSet<>();
     private Boolean isAdministrator;
     private Boolean isExternal;
     private Set<OpenLAccessEntry> accessEntries = new HashSet<>();
@@ -68,11 +67,16 @@ public class OpenLGroup implements Serializable {
      *
      * @return
      */
-    @ManyToMany(targetEntity = OpenLGroup.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Group2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = {
-            @JoinColumn(name = "includedGroupID") })
-    public Set<OpenLGroup> getIncludedGroups() {
-        return includedOpenLGroups;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "groupId")
+    public Set<OpenLGroup2Group> getIncludedGroupLinks() {
+        return includedGroupLinks;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "includedGroupId")
+    public Set<OpenLGroup2Group> getParentGroupLinks() {
+        return parentGroupLinks;
     }
 
     /**
@@ -89,8 +93,18 @@ public class OpenLGroup implements Serializable {
         this.description = description;
     }
 
-    public void setIncludedGroups(Set<OpenLGroup> includedOpenLGroups) {
-        this.includedOpenLGroups = includedOpenLGroups;
+    public void setIncludedGroupLinks(Set<OpenLGroup2Group> includedOpenLGroups) {
+        this.includedGroupLinks = includedOpenLGroups;
+    }
+
+    public void addIncludedGroup(OpenLGroup openLGroup) {
+        OpenLGroup2Group openLGroup2Group = new OpenLGroup2Group(this, openLGroup, 1L);
+        includedGroupLinks.add(openLGroup2Group);
+        openLGroup.getParentGroupLinks().add(openLGroup2Group);
+    }
+
+    public void setParentGroupLinks(Set<OpenLGroup2Group> parentOpenLGroups) {
+        this.parentGroupLinks = parentOpenLGroups;
     }
 
     public void setName(String name) {
@@ -117,7 +131,7 @@ public class OpenLGroup implements Serializable {
         isExternal = external;
     }
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, targetEntity = OpenLGroupAccessEntry.class)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = OpenLGroupAccessEntry.class)
     @JoinColumn(name = "groupId")
     public Set<OpenLAccessEntry> getAccessEntries() {
         return accessEntries;
@@ -134,10 +148,12 @@ public class OpenLGroup implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         OpenLGroup openLGroup = (OpenLGroup) o;
 

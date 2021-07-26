@@ -2,10 +2,6 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 import org.openl.rules.security.standalone.persistence.OpenLGroup;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +15,21 @@ public class HibernateGroupDao extends BaseHibernateDao<OpenLGroup> implements G
     @Override
     @Transactional(readOnly = true)
     public OpenLGroup getGroupByName(final String name) {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<OpenLGroup> criteria = builder.createQuery(OpenLGroup.class);
-        Root<OpenLGroup> g = criteria.from(OpenLGroup.class);
-        criteria.select(g).where(builder.equal(g.get("name"), name)).distinct(true);
-        List<OpenLGroup> groupList = getSession().createQuery(criteria).getResultList();
-        return groupList.stream().findFirst().orElse(null);
+        return (OpenLGroup) getSession().createQuery(
+            "select distinct og from OpenLGroup og "
+                    + " left join fetch og.accessEntries ae "
+                    + " left join fetch ae.openLSecurityObject "
+                    + " left join fetch og.includedGroupLinks g2g "
+                    + " left join fetch og.parentGroupLinks p2g "
+                    + " left join fetch p2g.parentGroup pg "
+                    + " left join fetch pg.accessEntries pgae"
+                    + " left join fetch pgae.openLSecurityObject "
+                    + " left join fetch g2g.includedGroup cg "
+                    + " left join fetch cg.accessEntries cgae "
+                    + " left join fetch cgae.openLSecurityObject "
+                    + " where (og.name = :name)")
+            .setParameter("name", name)
+            .uniqueResult();
     }
 
     @Override
@@ -41,11 +46,19 @@ public class HibernateGroupDao extends BaseHibernateDao<OpenLGroup> implements G
 
     @Override
     @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
     public List<OpenLGroup> getAllGroups() {
-        CriteriaBuilder builder = getSession().getCriteriaBuilder();
-        CriteriaQuery<OpenLGroup> criteria = builder.createQuery(OpenLGroup.class);
-        Root<OpenLGroup> root = criteria.from(OpenLGroup.class);
-        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("name"))));
-        return getSession().createQuery(criteria).getResultList();
+        return (List<OpenLGroup>) getSession().createQuery(
+            "select distinct og from OpenLGroup og "
+                    + " left join fetch og.accessEntries ae "
+                    + " left join fetch og.includedGroupLinks g2g " +
+                    " left join fetch og.parentGroupLinks p2g " +
+                    " left join fetch p2g.parentGroup pg "
+                    + " left join fetch pg.accessEntries pgae"
+                    + " left join fetch g2g.includedGroup cg "
+                    + " left join fetch cg.accessEntries cgae"
+                    + " order by og.name")
+            .setReadOnly(true)
+            .getResultList();
     }
 }

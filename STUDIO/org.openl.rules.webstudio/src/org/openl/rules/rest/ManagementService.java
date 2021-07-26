@@ -94,9 +94,9 @@ public class ManagementService {
     public static class UIGroup {
         private UIGroup(OpenLGroup openLGroup) {
             description = openLGroup.getDescription();
-            roles = openLGroup.getIncludedGroups()
+            roles = openLGroup.getIncludedGroupLinks()
                 .stream()
-                .map(OpenLGroup::getName)
+                .map(group -> group.getIncludedGroup().getName())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         }

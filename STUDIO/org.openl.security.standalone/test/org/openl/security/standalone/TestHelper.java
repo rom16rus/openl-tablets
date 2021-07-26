@@ -54,7 +54,7 @@ public class TestHelper {
 
     public static OpenLSecurityObject stubModuleSecurityObject() {
         OpenLSecurityObject openLSecurityObject = new OpenLSecurityObject();
-        openLSecurityObject.setName("Test Module object");
+        openLSecurityObject.setName("TestFile.xlsx");
         openLSecurityObject.setType(SecurityObjectType.MODULE);
         return openLSecurityObject;
     }

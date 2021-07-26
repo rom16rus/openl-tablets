@@ -69,9 +69,9 @@ public class SecurityObjectDaoTest {
 
         OpenLGroup group = stubGroup();
         final Set<OpenLGroup> subGroupSet = Collections.singleton(subGroup);
-        group.setIncludedGroups(subGroupSet);
         groupDao.save(group);
 
+        group.addIncludedGroup(subGroup);
         group.addAccessEntry(groupAccessEntry);
         groupDao.update(group);
 

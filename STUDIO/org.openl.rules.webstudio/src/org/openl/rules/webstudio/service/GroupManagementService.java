@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openl.rules.security.Group;
+import org.openl.rules.security.standalone.PrivilegesEvaluator;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.OpenLGroup;
 
@@ -70,7 +71,7 @@ public class GroupManagementService {
             }
         }
 
-        persistOpenLGroup.setIncludedGroups(!includedOpenLGroups.isEmpty() ? includedOpenLGroups : null);
+        // persistOpenLGroup.setIncludedGroupLinks(!includedOpenLGroups.isEmpty() ? includedOpenLGroups : null);
         // persistOpenLGroup.setPrivileges(privileges);
 
         groupDao.update(persistOpenLGroup);
