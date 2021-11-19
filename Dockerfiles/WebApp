@@ -20,9 +20,6 @@ ENV PATH $CATALINA_HOME/bin:$JAVA_HOME/bin:$PATH
 
 WORKDIR $CATALINA_HOME
 
-# Fix SEVERE error while running image via non-root user
-RUN mkdir -p conf/Catalina/localhost
-
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
 RUN set -eux ; \
     \
@@ -41,8 +38,8 @@ RUN useradd -r -m -U -s /usr/sbin/nologin openl
 # It should be mounted on an external volume to persist application data between redeploying if it is required.
 # Do not confuse this with home directory of 'openl' user.
 RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
-# Will be uncomment in 5.26
-#USER openl
+
+USER openl
 
 ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 
@@ -52,8 +49,3 @@ CMD ["catalina.sh", "run"]
 COPY $APP webapps/ROOT
 
 WORKDIR $OPENL_HOME
-
-# For migration from '/root/.openl' default folder to '/openl'. Will be removed in 5.26
-RUN ln -s "$OPENL_HOME" /root/.openl && chown -h openl:openl /root/.openl
-ENV OPENL_HOME=.
-WORKDIR /root/.openl
