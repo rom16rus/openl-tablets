@@ -669,4 +669,9 @@ public class RunWebservicesITest {
         client.send("EPBDS-12267/myRules.json.post");
     }
 
+    @Test
+    public void EPBDS_12264() {
+        client.send("EPBDS-12264/myRules.json.post");
+    }
+
 }
